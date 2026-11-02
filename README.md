@@ -237,4 +237,4 @@ Potential extensions include:
 
 ## Project Ownership
 
-This project was designed and built as a student engineering project by Ryan Abdalla. Ryan performed the hardware assembly, testing, software execution, experimentation, and analysis with technical mentorship and design review from a parent with an electrical engineering background.
+This project was designed and built as a student CS/EE project by Ryan Abdalla, a high school senior. Ryan performed the hardware assembly, testing, software execution, experimentation, and analysis with technical mentorship and design review from a parent with an electrical engineering background.
