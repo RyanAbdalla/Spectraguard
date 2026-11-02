@@ -10,22 +10,43 @@ void writeRegister(byte reg, byte value) {
   Wire.endTransmission();
 }
 
+byte readRegister(byte reg) {
+  Wire.beginTransmission(ADXL345);
+  Wire.write(reg);
+
+  if (Wire.endTransmission() != 0) {
+    return 0xFF;
+  }
+
+  Wire.requestFrom(ADXL345, (byte)1);
+
+  if (Wire.available() == 1) {
+    return Wire.read();
+  }
+
+  return 0xFF;
+}
+
 void setup() {
   Serial.begin(460800);
-  while (!Serial);
-
   Wire.begin();
+  analogReadResolution(12);
 
-  // Full resolution, +/-2 g
-  writeRegister(0x31, 0x08);
+  delay(1000);
 
-  // Output data rate = 400 Hz
-  writeRegister(0x2C, 0x0C);
+  // Wait until ADXL345 responds with its correct device ID: 0xE5
+  while (readRegister(0x00) != 0xE5) {
+    Serial.println("Waiting for ADXL345...");
+    delay(250);
+  }
 
-  // Measurement mode
-  writeRegister(0x2D, 0x08);
+  writeRegister(0x31, 0x08);  // full resolution, +/-2 g
+  writeRegister(0x2C, 0x0C);  // 400 Hz
+  writeRegister(0x2D, 0x08);  // measurement mode
 
-  Serial.println("t_us,x_g,y_g,z_g");
+  delay(100);
+
+  Serial.println("t_us,x_g,y_g,z_g,mic");
 }
 
 void loop() {
@@ -36,7 +57,9 @@ void loop() {
 
     Wire.beginTransmission(ADXL345);
     Wire.write(0x32);
-    Wire.endTransmission(false);
+
+    if (Wire.endTransmission(false) != 0)
+      return;
 
     Wire.requestFrom(ADXL345, (byte)6);
 
@@ -49,13 +72,17 @@ void loop() {
       float y = yRaw * 0.0039;
       float z = zRaw * 0.0039;
 
+      int mic = analogRead(A0);
+
       Serial.print(micros());
       Serial.print(",");
       Serial.print(x, 4);
       Serial.print(",");
       Serial.print(y, 4);
       Serial.print(",");
-      Serial.println(z, 4);
+      Serial.print(z, 4);
+      Serial.print(",");
+      Serial.println(mic);
     }
   }
 }
